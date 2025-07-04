@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from dataset import get_training_data, get_validation_data
 from tqdm import tqdm
-from model import MeanTeacher
+from model import model
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
