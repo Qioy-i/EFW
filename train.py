@@ -12,7 +12,7 @@ from model import model
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
-from warmuocosineLR import WarmupCosineLR
+from warmupcosineLR import WarmupCosineLR
 import random
 import math
 torch.cuda.empty_cache()
