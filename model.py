@@ -137,7 +137,7 @@ class Model(nn.Module):
         self.lambda_ = lambda_
 
         self.student_model = generate_model_spacing(model_depth=18)
-        pretrained_weights_path = "/model/pth/r3d18_K_200ep.pth" 
+        pretrained_weights_path = "/pth/r3d18_K_200ep.pth" 
         self.student_model = load_pretrained_weights(self.student_model, pretrained_weights_path)
         self.teacher_model = copy.deepcopy(self.student_model)
 
