@@ -7,14 +7,16 @@ import torchio as tio
 
 def augment_brightness_additive(data_sample, mu:float, sigma:float , per_channel:bool=True, p_per_channel:float=1.):
     """
-    data_sample must have shape (c, x, y(, z)))
-    :param data_sample: 随机数分布的均值，用来控制亮度偏移的中心值。
-    :param mu:  随机数分布的标准差，决定亮度变化的幅度。
-    :param sigma: 
-    :param per_channel: 
-    :param p_per_channel: 
-    :return: 
+    The input `data_sample` must have shape (c, x, y[, z]).
+    
+    :param data_sample: The input image sample.  
+    :param mu: Mean of the random distribution, controlling the center of the brightness shift.  
+    :param sigma: Standard deviation of the random distribution, determining the magnitude of brightness variation.  
+    :param per_channel: Whether to apply the brightness shift independently per channel.  
+    :param p_per_channel: Probability of applying the shift to each channel individually (if `per_channel` is True).  
+    :return: Brightness-adjusted image sample.
     """
+
     if not per_channel:
         rnd_nb = np.random.normal(mu, sigma)
         for c in range(data_sample.shape[0]):
@@ -30,7 +32,7 @@ def augment_brightness_additive(data_sample, mu:float, sigma:float , per_channel
 
 def  augment_brightness_multiplicative(data_sample, multiplier_range=(0.6, 1.4), per_channel=True):
     # (C, H, W, D)
-    multiplier = np.random.uniform(multiplier_range[0], multiplier_range[1]) # 从0.5到2中随机采样，如果采样值<1,亮度变暗；如果采样值>1:亮度变量
+    multiplier = np.random.uniform(multiplier_range[0], multiplier_range[1]) # Randomly sample a value from [0.5, 2]; values < 1 darken the image, values > 1 brighten it.
     if not per_channel:
         data_sample *= multiplier
     else:
@@ -73,38 +75,34 @@ def random_zoom(volume):
 
     # 将 tensor 转换为 torchio 的 Subject
     subject = tio.Subject(
-        volume=tio.ScalarImage(tensor=volume)  # 使用 ScalarImage 包装
+        volume=tio.ScalarImage(tensor=volume) 
     )
     if p > 0.5:
         scale_factor = random.uniform(0.8, 1.2)
 
-        # 创建随机缩放变换，确保 isotropic 确保缩放因子对所有轴一致
         zoom = tio.RandomAffine(
-            scales=(scale_factor, scale_factor),  # 将缩放因子传入
-            degrees=0,                            # 无旋转
-            translation=0,                        # 无平移
-            isotropic=True                        # 确保所有轴缩放一致
+            scales=(scale_factor, scale_factor), 
+            degrees=0,                            
+            translation=0,                      
+            isotropic=True                     
         )
-        # 应用变换
         transformed_subject = zoom(subject)
         scale_factor_list = [scale_factor, scale_factor, scale_factor]
     else:
         scale_factor_list = np.random.uniform(0.8, 1.2, 3)
 
-        # 创建随机缩放变换，确保 isotropic 确保缩放因子对所有轴一致
         zoom = tio.RandomAffine(
             scales=(
                 scale_factor_list[0], scale_factor_list[0],
                 scale_factor_list[1], scale_factor_list[1],
                 scale_factor_list[2], scale_factor_list[2]
-            ),  # 每个轴的缩放范围 (min, max)
-            degrees=0,  # 无旋转
-            translation=0,  # 无平移
-            isotropic=False  # 各轴独立缩放
+            ), 
+            degrees=0, 
+            translation=0,  
+            isotropic=False 
         )
         transformed_subject = zoom(subject)
     
-    # 从 Subject 中提取变换后的数据
     volume_zoom = transformed_subject.volume.data
 
     return volume_zoom, scale_factor_list
@@ -112,12 +110,11 @@ def random_zoom(volume):
 def random_contrast_adjust(img, log_gamma=(-0.2, 0.2)):
     # (C, H, W, D)
     transform = tio.Compose([
-        tio.RandomGamma(log_gamma),  # 调整对比度
+        tio.RandomGamma(log_gamma), 
     ])
 
     p = torch.rand(1)
     if p > 0.5:
-    # 应用变换
         img = img / 255.
         img = transform(img)
         img = img * 255.
