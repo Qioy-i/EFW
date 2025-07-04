@@ -122,7 +122,7 @@ class Bottleneck(nn.Module):
 
 
 
-class MeanTeacher(nn.Module):
+class Model(nn.Module):
     def __init__(self,
                  alpha_min = 0.9,
                  alpha_max = 0.995,
